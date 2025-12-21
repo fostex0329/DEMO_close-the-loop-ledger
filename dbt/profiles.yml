@@ -1,0 +1,8 @@
+close_the_loop_ledger:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: 'warehouse.duckdb'
+      extensions:
+        - parquet

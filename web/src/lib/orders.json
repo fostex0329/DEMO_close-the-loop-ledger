@@ -1,0 +1,50 @@
+[
+  {
+    "sequence_no": 1,
+    "organization_name": "国土交通省",
+    "procurement_name": "庁舎清掃業務",
+    "contract_date": "2025-12-01",
+    "contractor_name": "株式会社クリーン",
+    "contract_amount": 5000000,
+    "corporate_number": 1234567890123,
+    "snapshot_date": "2025-12-21 00:00:00",
+    "corporate_name": "株式会社クリーン",
+    "address_prefecture": "東京都",
+    "address_city": "千代田区",
+    "amount": 5000000.0,
+    "order_date": "2025-12-01",
+    "billing_status": "PAID"
+  },
+  {
+    "sequence_no": 2,
+    "organization_name": "財務省",
+    "procurement_name": "システム更改",
+    "contract_date": "2025-12-05",
+    "contractor_name": "株式会社テック",
+    "contract_amount": 120000000,
+    "corporate_number": 9876543210987,
+    "snapshot_date": "2025-12-21 00:00:00",
+    "corporate_name": "株式会社テック",
+    "address_prefecture": "神奈川県",
+    "address_city": "横浜市",
+    "amount": 120000000.0,
+    "order_date": "2025-12-05",
+    "billing_status": "PAID"
+  },
+  {
+    "sequence_no": 3,
+    "organization_name": "デジタル庁",
+    "procurement_name": "クラウド利用料",
+    "contract_date": "2025-12-10",
+    "contractor_name": "クラウドサービス株式会社",
+    "contract_amount": 3000000,
+    "corporate_number": 1111222233334,
+    "snapshot_date": "2025-12-21 00:00:00",
+    "corporate_name": "クラウドサービス株式会社",
+    "address_prefecture": "大阪府",
+    "address_city": "大阪市",
+    "amount": 3000000.0,
+    "order_date": "2025-12-10",
+    "billing_status": "BILLED"
+  }
+]

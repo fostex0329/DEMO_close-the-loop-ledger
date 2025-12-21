@@ -1,0 +1,5 @@
+doc_id,doc_type,title,related_order_key,vendor_name,vendor_id,effective_date,filename
+DOC-202512-C-0001,contract,取引基本契約書（デモ用）,,株式会社デモ制作,,2025-12-01,demo_contract_DOC-202512-C-0001.pdf
+DOC-202512-PO-0001,po,発注書（PO / デモ用）,ORDER-202512-0001,株式会社デモ制作,,2025-12-10,demo_po_DOC-202512-PO-0001.pdf
+DOC-202512-INV-0001,invoice,請求書（デモ用）,ORDER-202512-0001,株式会社デモ制作,,2025-12-26,demo_invoice_DOC-202512-INV-0001.pdf
+DOC-202512-POL-0001,policy,請求・入金管理ルール（デモ用）,,,,2025-12-01,demo_policy_DOC-202512-POL-0001.pdf

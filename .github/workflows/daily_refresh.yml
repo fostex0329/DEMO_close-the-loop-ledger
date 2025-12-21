@@ -1,0 +1,47 @@
+name: Daily Data Refresh
+
+on:
+  schedule:
+    # Run at 00:00 UTC (09:00 JST) every day
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+env:
+  DUCKDB_PATH: warehouse.duckdb
+
+jobs:
+  refresh_pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          dbt deps --project-dir dbt --profiles-dir dbt
+
+      - name: Run Data Acquisition Pipelines
+        run: |
+          python pipelines/download_bids.py
+          python pipelines/download_corporate.py
+
+      - name: Run dbt (Transformations)
+        run: |
+          dbt run --project-dir dbt --profiles-dir dbt
+          dbt test --project-dir dbt --profiles-dir dbt
+
+      - name: Upload Database Artifact (Debug/Demo)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: warehouse-duckdb
+          path: warehouse.duckdb
+          retention-days: 7

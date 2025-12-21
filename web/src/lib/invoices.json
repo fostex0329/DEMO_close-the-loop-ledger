@@ -1,0 +1,38 @@
+[
+  {
+    "order_id": 1,
+    "invoice_number": "INV-202512-0001",
+    "organization_name": "国土交通省",
+    "contractor_name": "株式会社クリーン",
+    "invoice_amount": 5000000,
+    "invoice_date": "2025-12-06 00:00:00",
+    "payment_due_date": "2026-01-05 00:00:00",
+    "actual_invoice_date": "2025-12-06 00:00:00",
+    "currency": "JPY",
+    "snapshot_date": "2025-12-21 00:00:00"
+  },
+  {
+    "order_id": 2,
+    "invoice_number": "INV-202512-0002",
+    "organization_name": "財務省",
+    "contractor_name": "株式会社テック",
+    "invoice_amount": 120000000,
+    "invoice_date": "2025-12-10 00:00:00",
+    "payment_due_date": "2026-01-09 00:00:00",
+    "actual_invoice_date": "2025-12-10 00:00:00",
+    "currency": "JPY",
+    "snapshot_date": "2025-12-21 00:00:00"
+  },
+  {
+    "order_id": 3,
+    "invoice_number": "INV-202512-0003",
+    "organization_name": "デジタル庁",
+    "contractor_name": "クラウドサービス株式会社",
+    "invoice_amount": 3000000,
+    "invoice_date": "2025-12-15 00:00:00",
+    "payment_due_date": "2026-01-14 00:00:00",
+    "actual_invoice_date": "NaT",
+    "currency": "JPY",
+    "snapshot_date": "2025-12-21 00:00:00"
+  }
+]

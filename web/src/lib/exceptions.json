@@ -1,0 +1,17 @@
+[
+  {
+    "order_id": 3,
+    "organization_name": "デジタル庁",
+    "procurement_name": "クラウド利用料",
+    "contractor_name": "クラウドサービス株式会社",
+    "amount": 3000000,
+    "order_date": "2025-12-10",
+    "exception_type": "UNBILLED",
+    "exception_description": "受注から7日以上経過しているが未請求",
+    "days_since_order": 11,
+    "due_date": "NaT",
+    "days_overdue": null,
+    "severity": "HIGH",
+    "detected_date": "2025-12-21 00:00:00"
+  }
+]

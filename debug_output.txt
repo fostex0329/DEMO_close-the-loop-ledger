@@ -1,0 +1,20 @@
+[0m02:51:32  Running with dbt=1.10.17
+[0m02:51:32  Registered adapter: duckdb=1.10.0
+[0m02:51:32  Found 6 models, 21 data tests, 2 sources, 471 macros
+[0m02:51:32  
+[0m02:51:32  Concurrency: 1 threads (target='dev')
+[0m02:51:32  
+[0m02:51:33  1 of 1 START sql view model main_bronze.stg_bids ............................... [RUN]
+[0m02:51:33  1 of 1 ERROR creating sql view model main_bronze.stg_bids ...................... [[31mERROR[0m in 0.05s]
+[0m02:51:33  
+[0m02:51:33  Finished running 1 view model in 0 hours 0 minutes and 0.19 seconds (0.19s).
+[0m02:51:33  
+[0m02:51:33  [31mCompleted with 1 error, 0 partial successes, and 0 warnings:[0m
+[0m02:51:33  
+[0m02:51:33  [31mFailure in model stg_bids (models/bronze/stg_bids.sql)[0m
+[0m02:51:33    Runtime Error in model stg_bids (models/bronze/stg_bids.sql)
+  IO Error: No files found that match the pattern "../data/raw/bids_raw.parquet"
+[0m02:51:33  
+[0m02:51:33    compiled code at target/compiled/close_the_loop_ledger/models/bronze/stg_bids.sql
+[0m02:51:33  
+[0m02:51:33  Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1
