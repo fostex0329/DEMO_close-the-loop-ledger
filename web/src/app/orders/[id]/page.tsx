@@ -19,9 +19,10 @@ export default async function OrderDetailsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const orderId = parseInt(id);
+  // Previously we parsed int, but now IDs are strings (e.g. procurement IDs)
+  const orderId = id; 
   
-  if (isNaN(orderId)) {
+  if (!orderId) {
     notFound();
   }
 
@@ -58,7 +59,7 @@ SELECT
 FROM bronze_bids b
 LEFT JOIN bronze_corporate c 
     ON b.corporate_number = c.corporate_number
-WHERE b.sequence_no = ${orderId};
+WHERE b.sequence_no = '${orderId}';
   `.trim();
 
   return (
@@ -68,9 +69,9 @@ WHERE b.sequence_no = ${orderId};
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-primary">
-              &larr; Back
+              &larr; 戻る
             </Link>
-            <h1 className="text-2xl font-bold tracking-tight">Order #{orderId}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">案件詳細 #{orderId}</h1>
             <Badge variant={getStatusVariant(order.billing_status)} className="ml-2">
               {order.billing_status}
             </Badge>
@@ -87,7 +88,7 @@ WHERE b.sequence_no = ${orderId};
           <Card>
             <CardHeader>
               <CardTitle>案件情報</CardTitle>
-              <CardDescription>Bronze/Silver層からの基本情報</CardDescription>
+              <CardDescription>データソース: Bronze/Silver層</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
@@ -151,23 +152,23 @@ WHERE b.sequence_no = ${orderId};
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Number</TableHead>
-                    <TableHead>Date / Due</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>種別</TableHead>
+                    <TableHead>番号</TableHead>
+                    <TableHead>日付 / 期限</TableHead>
+                    <TableHead className="text-right">金額</TableHead>
+                    <TableHead>ステータス</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {/* Invoices */}
                   {invoices.map((inv) => (
                     <TableRow key={inv.invoice_number}>
-                      <TableCell><Badge variant="outline">Invoice</Badge></TableCell>
+                      <TableCell><Badge variant="outline">請求書</Badge></TableCell>
                       <TableCell className="font-mono">{inv.invoice_number}</TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>Issued: {inv.invoice_date}</div>
-                          <div className="text-muted-foreground text-xs">Due: {inv.payment_due_date}</div>
+                          <div>発行日: {inv.invoice_date}</div>
+                          <div className="text-muted-foreground text-xs">期限: {inv.payment_due_date}</div>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">{formatCurrency(inv.invoice_amount)}</TableCell>
@@ -178,13 +179,13 @@ WHERE b.sequence_no = ${orderId};
                   {/* Payments */}
                   {payments.map((pmt) => (
                     <TableRow key={String(pmt.item_id || pmt.invoice_number + 'pmt')}>
-                      <TableCell><Badge variant="secondary">Payment</Badge></TableCell>
-                      <TableCell className="text-muted-foreground">For {pmt.invoice_number}</TableCell>
-                      <TableCell>{pmt.payment_date || 'Pending'}</TableCell>
+                      <TableCell><Badge variant="secondary">入金</Badge></TableCell>
+                      <TableCell className="text-muted-foreground">対象: {pmt.invoice_number}</TableCell>
+                      <TableCell>{pmt.payment_date || '未入金'}</TableCell>
                       <TableCell className="text-right">{formatCurrency(pmt.payment_amount)}</TableCell>
                       <TableCell>
                          <Badge variant={pmt.payment_status === 'PAID' ? 'default' : 'destructive'}>
-                           {pmt.payment_status}
+                           {pmt.payment_status === 'PAID' ? '入金済' : '未入金'}
                          </Badge>
                       </TableCell>
                     </TableRow>

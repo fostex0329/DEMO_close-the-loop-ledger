@@ -79,3 +79,14 @@ models:
           - not_null
           - accepted_values:
               values: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
+
+  - name: gold_documents
+    description: "Searchable document index"
+    columns:
+      - name: doc_id
+        tests:
+          - unique
+          - not_null
+      - name: content
+        description: "Full text content"
+

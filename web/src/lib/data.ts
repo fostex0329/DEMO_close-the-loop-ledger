@@ -5,7 +5,7 @@ import invoicesData from './invoices.json';
 import paymentsData from './payments.json';
 
 export interface OrderRow {
-  sequence_no: number;
+  sequence_no: string;
   organization_name: string;
   procurement_name: string;
   contract_date: string;
@@ -21,7 +21,7 @@ export interface OrderRow {
 }
 
 export interface ExceptionRow {
-  order_id: number;
+  order_id: string;
   organization_name: string;
   procurement_name: string;
   contractor_name: string;
@@ -37,7 +37,7 @@ export interface ExceptionRow {
 }
 
 export interface InvoiceRow {
-  order_id: number;
+  order_id: string;
   invoice_number: string;
   organization_name: string;
   contractor_name: string;
@@ -50,7 +50,7 @@ export interface InvoiceRow {
 
 export interface PaymentRow {
   invoice_number: string;
-  order_id: number;
+  order_id: string;
   invoice_amount: number;
   payment_due_date: string;
   payment_date: string | null;
@@ -68,19 +68,19 @@ export interface KPIs {
 }
 
 export async function getOrders(): Promise<OrderRow[]> {
-  return ordersData as OrderRow[];
+  return ordersData as unknown as OrderRow[];
 }
 
 export async function getExceptions(): Promise<ExceptionRow[]> {
-  return exceptionsData as ExceptionRow[];
+  return exceptionsData as unknown as ExceptionRow[];
 }
 
 export async function getInvoices(): Promise<InvoiceRow[]> {
-  return invoicesData as InvoiceRow[];
+  return invoicesData as unknown as InvoiceRow[];
 }
 
 export async function getPayments(): Promise<PaymentRow[]> {
-  return paymentsData as PaymentRow[];
+  return paymentsData as unknown as PaymentRow[];
 }
 
 export async function getKPIs(): Promise<KPIs> {
@@ -108,17 +108,18 @@ export async function getKPIs(): Promise<KPIs> {
   };
 }
 
-export async function getOrderById(id: number): Promise<OrderRow | undefined> {
+export async function getOrderById(id: string): Promise<OrderRow | undefined> {
   const orders = await getOrders();
-  return orders.find(o => o.sequence_no === id);
+  // Ensure we compare strings
+  return orders.find(o => String(o.sequence_no) === id);
 }
 
-export async function getInvoicesByOrderId(orderId: number): Promise<InvoiceRow[]> {
+export async function getInvoicesByOrderId(orderId: string): Promise<InvoiceRow[]> {
   const invoices = await getInvoices();
-  return invoices.filter(i => i.order_id === orderId);
+  return invoices.filter(i => String(i.order_id) === orderId);
 }
 
-export async function getPaymentsByOrderId(orderId: number): Promise<PaymentRow[]> {
+export async function getPaymentsByOrderId(orderId: string): Promise<PaymentRow[]> {
   const payments = await getPayments();
-  return payments.filter(p => p.order_id === orderId);
+  return payments.filter(p => String(p.order_id) === orderId);
 }

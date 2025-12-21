@@ -32,13 +32,13 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Invoices</CardTitle>
+        <CardTitle>請求書一覧</CardTitle>
         <CardDescription>
-          View and manage all invoices.
+          全ての請求書を確認・管理できます。
         </CardDescription>
         <div className="flex gap-4 mt-4">
           <Input
-            placeholder="Search by Org or Invoice No..."
+            placeholder="発注機関または請求番号で検索..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-sm"
@@ -50,19 +50,19 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Invoice No.</TableHead>
-                <TableHead>Organization</TableHead>
-                <TableHead>Issue Date</TableHead>
-                <TableHead>Payment Due</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>請求番号</TableHead>
+                <TableHead>発注機関</TableHead>
+                <TableHead>発行日</TableHead>
+                <TableHead>支払期限</TableHead>
+                <TableHead className="text-right">金額</TableHead>
+                <TableHead>ステータス</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredInvoices.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center">
-                    No results found.
+                    請求書が見つかりません。
                   </TableCell>
                 </TableRow>
               ) : (
@@ -79,7 +79,7 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
                     <TableCell className="text-right">{formatCurrency(inv.invoice_amount)}</TableCell>
                     <TableCell>
                          {/* TODO: Add proper status logic if available in invoice row, or join with payment info */}
-                         <Badge variant="outline">ISSUED</Badge>
+                         <Badge variant="outline">発行済</Badge>
                     </TableCell>
                   </TableRow>
                 ))

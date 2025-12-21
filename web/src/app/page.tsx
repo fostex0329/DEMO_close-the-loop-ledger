@@ -30,9 +30,10 @@ export default async function DashboardPage() {
               <p className="text-sm text-muted-foreground">受注〜請求〜入金 管理ダッシュボード</p>
             </div>
             <nav className="flex gap-4">
-              <Link href="/" className="text-sm font-medium text-primary">Dashboard</Link>
-              <Link href="/ledger" className="text-sm font-medium text-muted-foreground hover:text-primary">Ledger</Link>
-              <Link href="/reports" className="text-sm font-medium text-muted-foreground hover:text-primary">Reports</Link>
+              <Link href="/" className="text-sm font-medium text-primary">ダッシュボード</Link>
+              <Link href="/ledger" className="text-sm font-medium text-muted-foreground hover:text-primary">受注台帳</Link>
+              <Link href="/billing" className="text-sm font-medium text-muted-foreground hover:text-primary">請求・入金</Link>
+              <Link href="/reports" className="text-sm font-medium text-muted-foreground hover:text-primary">週次レポート</Link>
             </nav>
           </div>
         </div>
@@ -44,7 +45,7 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">総受注件数</CardTitle>
-              <Badge variant="secondary">Total</Badge>
+              <Badge variant="secondary">合計</Badge>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{kpis.totalOrders} 件</div>
@@ -55,7 +56,7 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">総受注額</CardTitle>
-              <Badge variant="secondary">Amount</Badge>
+              <Badge variant="secondary">金額</Badge>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{formatCurrency(kpis.totalAmount)}</div>
@@ -66,22 +67,22 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">未請求額</CardTitle>
-              <Badge variant="outline">Unbilled</Badge>
+              <Badge variant="outline">未請求</Badge>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{formatCurrency(kpis.unbilledAmount)}</div>
-              <p className="text-xs text-muted-foreground">Pending Billing</p>
+              <p className="text-xs text-muted-foreground">請求待ち</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">期限超過額</CardTitle>
-              <Badge variant="destructive">Overdue</Badge>
+              <Badge variant="destructive">要対応</Badge>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{formatCurrency(kpis.overdueAmount)}</div>
-              <p className="text-xs text-muted-foreground">Action Required</p>
+              <p className="text-xs text-muted-foreground">対応が必要です</p>
             </CardContent>
           </Card>
         </div>

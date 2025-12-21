@@ -20,18 +20,18 @@ payments as (
         -- sequence_no % 5 = 1: paid late (7 days after due)
         -- others: paid on time (3 days before due)
         case 
-            when order_id % 5 = 0 then null  -- 20% not paid
-            when order_id % 5 = 1 then (payment_due_date + interval '7 days')::date  -- 20% paid late
+            when hash(order_id) % 5 = 0 then null  -- 20% not paid
+            when hash(order_id) % 5 = 1 then (payment_due_date + interval '7 days')::date  -- 20% paid late
             else (payment_due_date - interval '3 days')::date  -- 60% paid on time
         end as payment_date,
         case 
-            when order_id % 5 = 0 then 0  -- not paid
-            when order_id % 5 = 1 then invoice_amount  -- paid late but full
+            when hash(order_id) % 5 = 0 then 0  -- not paid
+            when hash(order_id) % 5 = 1 then invoice_amount  -- paid late but full
             else invoice_amount  -- paid on time
         end as payment_amount,
         case 
-            when order_id % 5 = 0 then 'UNPAID'
-            when order_id % 5 = 1 then 'PAID_LATE'
+            when hash(order_id) % 5 = 0 then 'UNPAID'
+            when hash(order_id) % 5 = 1 then 'PAID_LATE'
             else 'PAID'
         end as payment_status,
         current_date as snapshot_date

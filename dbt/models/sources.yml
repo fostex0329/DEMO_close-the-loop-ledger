@@ -9,4 +9,7 @@ sources:
           external_location: "data/raw/bids_raw.parquet"
       - name: corporate
         meta:
-          external_location: "data/raw/corporate_raw.parquet"
+            external_location: "data/raw/corporate_raw.parquet"
+      - name: documents
+        meta:
+            external_location: "data/raw/documents_raw.parquet"

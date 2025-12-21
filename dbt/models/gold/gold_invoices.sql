@@ -22,7 +22,7 @@ invoices as (
         (contract_date::date + interval '35 days')::date as payment_due_date,
         -- Demo: randomly mark some as invoiced, some not
         case 
-            when sequence_no % 3 = 0 then null  -- 1/3 are not yet invoiced
+            when hash(sequence_no) % 3 = 0 then null  -- 1/3 are not yet invoiced
             else (contract_date::date + interval '5 days')::date
         end as actual_invoice_date,
         'JPY' as currency,

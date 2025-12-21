@@ -3,8 +3,7 @@ import { getInvoices, getPayments } from '@/lib/data';
 import { InvoicesTable } from '@/components/invoices-table';
 import { PaymentsTable } from '@/components/payments-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PaymentModal } from "@/components/payment-modal";
 
 export default async function BillingPage() {
   const invoices = await getInvoices();
@@ -14,31 +13,32 @@ export default async function BillingPage() {
     <div className="container mx-auto py-10 space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Billing & Payments</h1>
+        <h1 className="text-3xl font-bold tracking-tight">請求・入金管理</h1>
           <p className="text-muted-foreground">
-            Manage your invoices and track payments across all projects.
+            全プロジェクトの請求書と入金を管理します。
           </p>
         </div>
         <div className="flex gap-2">
-            <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Register Payment
-            </Button>
+            <PaymentModal invoices={invoices.map(inv => ({ 
+              invoice_number: inv.invoice_number,
+              project_name: inv.organization_name, // Using organization name as proxy for project context
+              amount: inv.invoice_amount 
+            }))} />
         </div>
       </div>
 
       <Tabs defaultValue="invoices" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="invoices">Invoices ({invoices.length})</TabsTrigger>
-          <TabsTrigger value="payments">Payments ({payments.length})</TabsTrigger>
+          <TabsTrigger value="invoices">請求書 ({invoices.length})</TabsTrigger>
+          <TabsTrigger value="payments">入金 ({payments.length})</TabsTrigger>
         </TabsList>
         <TabsContent value="invoices" className="space-y-4">
-          <Suspense fallback={<div>Loading invoices...</div>}>
+          <Suspense fallback={<div>請求書を読み込み中...</div>}>
             <InvoicesTable invoices={invoices} />
           </Suspense>
         </TabsContent>
         <TabsContent value="payments" className="space-y-4">
-          <Suspense fallback={<div>Loading payments...</div>}>
+          <Suspense fallback={<div>入金情報を読み込み中...</div>}>
             <PaymentsTable payments={payments} />
           </Suspense>
         </TabsContent>

@@ -1,55 +1,110 @@
+import requests
 import pandas as pd
+import io
+import zipfile
 import os
 from pathlib import Path
 from datetime import datetime
 
 # Configuration
 DATA_DIR = Path("data/raw")
-SOURCE_FILE = DATA_DIR / "bids_source.csv"
 OUTPUT_FILE = DATA_DIR / "bids_raw.parquet"
+API_BASE_URL = "https://api.p-portal.go.jp/pps-web-biz/UAB03/OAB0301"
 
-def create_sample_bids_csv():
-    """Create a sample CSV if source doesn't exist for demo purposes."""
-    print(f"Creating sample data at {SOURCE_FILE}...")
-    
-    # Sample data matching Procurement Portal structure somewhat
-    data = {
-        "sequence_no": [1, 2, 3],
-        "organization_name": ["国土交通省", "財務省", "デジタル庁"],
-        "procurement_name": ["庁舎清掃業務", "システム更改", "クラウド利用料"],
-        "contract_date": ["2025-12-01", "2025-12-05", "2025-12-10"],
-        "contractor_name": ["株式会社クリーン", "株式会社テック", "クラウドサービス株式会社"],
-        "contract_amount": [5000000, 120000000, 3000000],
-        "corporate_number": ["1234567890123", "9876543210987", "1111222233334"] 
-    }
-    df = pd.DataFrame(data)
-    df.to_csv(SOURCE_FILE, index=False, encoding="utf-8")
-    print("Sample data created.")
+# Column Mapping by Index (0-based)
+# Based on inspection:
+# 0: ID, 1: Name, 2: Date, 3: Amount, 4: MinistryCode, 5: BidMethod?, 6: Contractor, 7: CorpID
+COLUMN_INDICES = {
+    0: "sequence_no",
+    1: "procurement_name",
+    2: "contract_date",
+    3: "contract_amount",
+    4: "organization_name", # Storing code here for now
+    6: "contractor_name",
+    7: "corporate_number"
+}
 
-def run_pipeline():
-    # Ensure directory exists
+def download_and_process():
     os.makedirs(DATA_DIR, exist_ok=True)
+    
+    current_year = datetime.now().year
+    target_years = [current_year, current_year - 1]
+    
+    for year in target_years:
+        filename = f"successful_bid_record_info_all_{year}.zip"
+        download_url = f"{API_BASE_URL}?fileversion=v001&filename={filename}"
+        print(f"Trying to download: {download_url}...")
+        
+        try:
+            resp = requests.get(download_url)
+            if resp.status_code == 200:
+                print(f"Download successful for year {year}!")
+                process_response(resp)
+                return
+            else:
+                print(f"Failed to download for year {year}. Status: {resp.status_code}")
+        except Exception as e:
+            print(f"Error downloading year {year}: {e}")
 
-    # 1. Check for source file
-    if not SOURCE_FILE.exists():
-        print(f"Source file {SOURCE_FILE} not found.")
-        create_sample_bids_csv()
+    print("Failed to download data for all attempted years.")
 
-    # 2. Load and Transform
-    print(f"Loading {SOURCE_FILE}...")
+def process_response(resp):
     try:
-        df = pd.read_csv(SOURCE_FILE)
+        with zipfile.ZipFile(io.BytesIO(resp.content)) as z:
+            csv_files = [f for f in z.namelist() if f.endswith('.csv')]
+            if not csv_files:
+                print("No CSV found in ZIP.")
+                return
+            
+            target_csv = csv_files[0]
+            print(f"Processing CSV from ZIP: {target_csv}")
+            
+            with z.open(target_csv) as f:
+                # Read CSV without header, force strings for IDs
+                # Use utf-8-sig for BOM
+                try:
+                    df = pd.read_csv(f, encoding='utf-8-sig', header=None, dtype=str)
+                except UnicodeDecodeError:
+                    f.seek(0)
+                    df = pd.read_csv(f, encoding='cp932', header=None, dtype=str)
+                
+        print(f"Raw data loaded: {len(df)} rows.")
+        
+        # Select and Rename Columns
+        # Create a new DF with the mapped columns
+        new_df = pd.DataFrame()
+        
+        for idx, name in COLUMN_INDICES.items():
+            if idx < len(df.columns):
+                new_df[name] = df[idx]
+        
+        df = new_df
+        
+        # Data Cleaning
+        if "contract_date" in df.columns:
+             df["contract_date"] = pd.to_datetime(df["contract_date"], errors='coerce').dt.date
+        
+        if "contract_amount" in df.columns:
+            # Handle possible commas or non-numeric
+            df["contract_amount"] = (
+                df["contract_amount"]
+                .astype(str)
+                .str.replace(',', '')
+                .apply(pd.to_numeric, errors='coerce')
+            )
         
         # Add metadata
         df["snapshot_date"] = datetime.now().date()
         
-        # 3. Save as Parquet
+        # Save
         print(f"Saving to {OUTPUT_FILE}...")
         df.to_parquet(OUTPUT_FILE, index=False)
-        print("Success! Bids data pipeline completed.")
-        
+        print("Success! Real procurement data pipeline completed.")
+
     except Exception as e:
-        print(f"Error processing bids data: {e}")
+        print(f"Processing failed: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
-    run_pipeline()
+    download_and_process()

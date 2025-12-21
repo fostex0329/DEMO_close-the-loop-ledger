@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/table";
 import { getKPIs, getExceptions } from "@/lib/data";
 import Link from "next/link";
+import { RagChat } from "@/components/rag-chat";
+import { ReportGenerator } from "@/components/report-generator";
 
 export default async function ReportsPage() {
   const kpis = await getKPIs();
@@ -50,9 +52,10 @@ export default async function ReportsPage() {
               <p className="text-sm text-muted-foreground">受注〜請求〜入金 管理ダッシュボード</p>
             </div>
             <nav className="flex gap-4">
-              <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-primary">Dashboard</Link>
-              <Link href="/ledger" className="text-sm font-medium text-muted-foreground hover:text-primary">Ledger</Link>
-              <Link href="/reports" className="text-sm font-medium text-primary">Reports</Link>
+              <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-primary">ダッシュボード</Link>
+              <Link href="/ledger" className="text-sm font-medium text-muted-foreground hover:text-primary">受注台帳</Link>
+              <Link href="/billing" className="text-sm font-medium text-muted-foreground hover:text-primary">請求・入金</Link>
+              <Link href="/reports" className="text-sm font-medium text-primary">週次レポート</Link>
             </nav>
           </div>
         </div>
@@ -147,6 +150,16 @@ export default async function ReportsPage() {
                   </Table>
                 </div>
               )}
+            </div>
+
+            <Separator />
+
+            {/* AI Research Assistant */}
+            <div>
+              <ReportGenerator />
+              <Separator className="my-6" />
+              <h3 className="text-lg font-semibold mb-4">3. AIリサーチアシスタント (Beta)</h3>
+              <RagChat />
             </div>
 
             <Separator />
