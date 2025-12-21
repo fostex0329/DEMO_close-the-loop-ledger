@@ -70,8 +70,37 @@ export interface ReportData {
 }
 
 export async function generateWeeklyReport(): Promise<ReportData | { error: string }> {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.OPENAI_API_KEY && process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') {
         return { error: "API Key Missing" };
+    }
+
+    // --- DEMO MODE: Return Fixed Report ---
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+        // Simulate network delay for realism
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        return {
+            status_summary: "【デモ版】全体の回収状況は良好ですが、2件の期限超過案件が発生しており注意が必要です。未請求額は前週比で減少傾向にあります。",
+            key_highlights: [
+                "期限超過案件が2件（合計50万円）発生しており、督促が必要です。",
+                "今週の新規受注は3件、合計120万円で順調に推移しています。",
+                "未請求の案件が1件あり、月末までの対応が推奨されます。"
+            ],
+            next_actions: [
+                {
+                    order_id: "ORD-2025-001",
+                    category: "billing_reminder",
+                    suggested_action: "㈱サンプル商事へ再督促メールを送信してください。",
+                    reasoning_source: "支払期日(12/20)から3日経過"
+                },
+                {
+                    order_id: "ORD-2025-004",
+                    category: "contract_review",
+                    suggested_action: "次回契約更新に向けて、単価交渉の準備を推奨します。",
+                    reasoning_source: "利益率低下の兆候あり"
+                }
+            ]
+        };
     }
 
     try {

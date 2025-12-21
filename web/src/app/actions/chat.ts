@@ -64,11 +64,50 @@ export async function chatDetail(messages: ChatMessage[]): Promise<ChatResponse>
   const lastMessage = messages[messages.length - 1];
   const userQuery = lastMessage.content;
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.OPENAI_API_KEY && process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') {
     return {
       answer: "API Key is missing. Please set OPENAI_API_KEY in .env file.",
       sources: []
     };
+  }
+
+  // --- DEMO MODE: Return Fixed Response ---
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+      console.log("Using DEMO MODE for Chat");
+      
+      // Return different answers based on keywords to simulate intelligence
+      if (userQuery.includes("支払") && userQuery.includes("条件")) {
+          return {
+              answer: "本案件（S001）の支払条件は「月末締め翌月末払い」です。契約書に基づき、請求書発行から30日以内の入金が必要です。なお、遅延時の利率は年率14.6%と定められています。",
+              sources: [{
+                  doc_id: "demo-doc-001",
+                  filename: "取引基本契約書_サンプル.pdf",
+                  page: 1,
+                  excerpt: "第5条（支払）甲は乙に対し、毎月末日に締め切った請求書に基づき、翌月末日までに指定口座へ振り込むものとする。"
+              }]
+          };
+      } else if (userQuery.includes("検収")) {
+          return {
+              answer: "検収条件は「納品後10営業日以内の確認」となっています。期間内に異議申し立てがない場合、自動的に検収完了とみなされます。",
+              sources: [{
+                  doc_id: "demo-doc-002",
+                  filename: "発注書_PO-202512.pdf",
+                  page: 1,
+                  excerpt: "検収条件：納品受領後10営業日以内。期間経過にて検収とみなす。"
+              }]
+          };
+      }
+      
+      // Default fallback for demo
+      return {
+          answer: "これはデモ版（Mock Mode）です。契約書や発注書の内容に基づいて回答します。例えば「支払条件は？」「検収期間は？」と聞いてみてください。",
+          sources: [{
+              doc_id: "demo-manifest",
+              filename: "DEMO_MODE_DESCRIPTION.txt",
+              page: 1,
+              excerpt: "この環境はOpenAI APIを使用せず、固定の回答を返しています。"
+          }]
+      };
   }
 
   try {
