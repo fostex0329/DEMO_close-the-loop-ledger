@@ -23,8 +23,26 @@ def json_serializer(obj):
 def export_table_to_json(con, table_name: str, output_path: Path):
     """Export a DuckDB table to JSON file."""
     try:
-        # Query all rows
-        result = con.execute(f"SELECT * FROM {table_name}").fetchdf()
+        # Query all rows with limit
+        # Sort by date/created_at to keep latest data
+        # Note: Different tables have different date columns, we try to detect or just use LIMIT
+        limit_count = 2000
+        
+        # Determine sort column based on table name (heuristic)
+        sort_clause = ""
+        if "gold_ledger" in table_name:
+            sort_clause = "ORDER BY order_date DESC"
+        elif "gold_invoices" in table_name:
+            sort_clause = "ORDER BY invoice_date DESC"
+        elif "gold_payments" in table_name:
+            sort_clause = "ORDER BY payment_date DESC"
+        elif "gold_exceptions" in table_name:
+            sort_clause = "ORDER BY detected_date DESC"
+        elif "gold_documents" in table_name:
+            sort_clause = "ORDER BY created_at DESC"
+            
+        params = f"{sort_clause} LIMIT {limit_count}"
+        result = con.execute(f"SELECT * FROM {table_name} {params}").fetchdf()
         
         # Convert to list of dicts
         records = result.to_dict(orient='records')
