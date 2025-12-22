@@ -95,6 +95,13 @@ export default async function ReportsPage() {
                 <p className="text-sm text-muted-foreground">対応が必要な案件はありません。</p>
               ) : (
                 <div className="rounded-md border">
+                  <div className="p-2 bg-slate-50 border-b text-xs text-muted-foreground text-right">
+                    {sortedExceptions.length > 100 ? (
+                      <span>※パフォーマンスのため、優先度の高い上位100件のみ表示しています（全{sortedExceptions.length}件中）</span>
+                    ) : (
+                      <span>全{sortedExceptions.length}件を表示中</span>
+                    )}
+                  </div>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -106,7 +113,7 @@ export default async function ReportsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {sortedExceptions.map((ex) => (
+                      {sortedExceptions.slice(0, 100).map((ex) => (
                         <TableRow key={ex.order_id}>
                           <TableCell>
                             <Badge variant="outline">{ex.exception_type}</Badge>
