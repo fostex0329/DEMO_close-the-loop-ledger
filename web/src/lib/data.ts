@@ -159,8 +159,7 @@ export async function getPaymentsPaginated(page: number = 1, pageSize: number = 
         payment_due_date,
         payment_date,
         payment_amount,
-        payment_status,
-        item_id
+        payment_status
       FROM main_gold.gold_payments
       ORDER BY payment_due_date DESC
       LIMIT ? OFFSET ?
