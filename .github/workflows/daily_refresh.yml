@@ -41,6 +41,7 @@ jobs:
         run: |
           python pipelines/download_bids.py
           python pipelines/download_corporate.py
+          python pipelines/generate_documents_parquet.py
 
       # Step 2: Load - Update DuckDB with raw data
       - name: Load - Update DuckDB
