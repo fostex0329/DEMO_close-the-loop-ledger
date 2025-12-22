@@ -66,8 +66,8 @@ export default function DemoGuidePage() {
                         <span className="text-green-500">✓</span> このプロダクト
                     </h3>
                     <ul className="text-sm text-slate-600 space-y-2">
-                        <li>• <strong>24時間365日 完全無人で更新</strong></li>
-                        <li>• 月間約20時間の作業削減、<strong>入力ミス率 0%</strong></li>
+                        <li>• <strong>24時間365日 データ取得を自動化</strong></li>
+                        <li>• 月間約20時間の作業削減（月50件処理想定）、<strong>手入力によるミスをゼロに</strong></li>
                         <li>• ログインした瞬間、最新の台帳が見える</li>
                         <li>• 「真実の一枚」として監査証跡にも使える</li>
                     </ul>
