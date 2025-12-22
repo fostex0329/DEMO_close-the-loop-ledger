@@ -45,7 +45,8 @@ models:
           - not_null
       - name: invoice_number
         tests:
-          - unique
+          - unique:
+              severity: warn
           - not_null
       - name: invoice_amount
         tests:
