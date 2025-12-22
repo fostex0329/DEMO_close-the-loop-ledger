@@ -78,34 +78,44 @@ export async function chatDetail(messages: ChatMessage[]): Promise<ChatResponse>
       // Return different answers based on keywords to simulate intelligence
       if (userQuery.includes("支払") && userQuery.includes("条件")) {
           return {
-              answer: "本案件（S001）の支払条件は「月末締め翌月末払い」です。契約書に基づき、請求書発行から30日以内の入金が必要です。なお、遅延時の利率は年率14.6%と定められています。",
+              answer: "本案件の支払条件は「月末締め翌月末払い（Net 30相当）」です。契約書に基づき、請求書発行から翌月末日までの入金が必要です。なお、遅延時の損害金は年率14.6%と定められています。",
               sources: [{
-                  doc_id: "demo-doc-001",
-                  filename: "取引基本契約書_サンプル.pdf",
+                  doc_id: "DOC-202512-C-0002-JP",
+                  filename: "DOC-202512-C-0002-JP.pdf",
                   page: 1,
-                  excerpt: "第5条（支払）甲は乙に対し、毎月末日に締め切った請求書に基づき、翌月末日までに指定口座へ振り込むものとする。"
+                  excerpt: "第2条（支払条件）1. 請求締め日：毎月末日 2. 請求書発行日：締め日から5営業日以内 3. 支払期日：請求書発行日の翌月末日（Net 30相当）"
               }]
           };
       } else if (userQuery.includes("検収")) {
           return {
-              answer: "検収条件は「納品後10営業日以内の確認」となっています。期間内に異議申し立てがない場合、自動的に検収完了とみなされます。",
+              answer: "検収条件は「納品日から10営業日以内」となっています。期間内に異議がない場合は、自動的に検収完了とみなされます。",
               sources: [{
-                  doc_id: "demo-doc-002",
-                  filename: "発注書_PO-202512.pdf",
+                  doc_id: "DOC-202512-C-0002-JP",
+                  filename: "DOC-202512-C-0002-JP.pdf",
                   page: 1,
-                  excerpt: "検収条件：納品受領後10営業日以内。期間経過にて検収とみなす。"
+                  excerpt: "第3条（検収）検収期間：納品日から10営業日以内。みなし検収：期間内に異議がない場合は検収完了とする。"
+              }]
+          };
+      } else if (userQuery.includes("督促")) {
+          return {
+              answer: "督促フローは以下の通りです：支払期日から1営業日後に一次督促（メール）、7日後に二次督促（電話/書面）、14日後に経営者エスカレーション（取引停止判断）となります。",
+              sources: [{
+                  doc_id: "DOC-202512-POL-0002-JP",
+                  filename: "DOC-202512-POL-0002-JP.pdf",
+                  page: 1,
+                  excerpt: "2. 督促フロー【RAG重要項目】・支払期日＋1営業日：一次督促（メール）・支払期日＋7日：二次督促（電話/書面）・支払期日＋14日：経営者エスカレーション（停止判断）"
               }]
           };
       }
       
       // Default fallback for demo
       return {
-          answer: "これはデモ版（Mock Mode）です。契約書や発注書の内容に基づいて回答します。例えば「支払条件は？」「検収期間は？」と聞いてみてください。",
+          answer: "これはデモ版（Mock Mode）です。契約書や発注書の内容に基づいて回答します。例えば「支払条件は？」「検収期間は？」「督促フローは？」と聞いてみてください。",
           sources: [{
-              doc_id: "demo-manifest",
-              filename: "DEMO_MODE_DESCRIPTION.txt",
+              doc_id: "DOC-202512-POL-0002-JP",
+              filename: "DOC-202512-POL-0002-JP.pdf",
               page: 1,
-              excerpt: "この環境はOpenAI APIを使用せず、固定の回答を返しています。"
+              excerpt: "社内ルール：請求・入金管理 適用範囲：全案件"
           }]
       };
   }

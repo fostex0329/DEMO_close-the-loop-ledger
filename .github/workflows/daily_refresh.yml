@@ -6,6 +6,9 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write  # Required for committing updated JSON files
+
 env:
   DUCKDB_PATH: warehouse.duckdb
 
@@ -16,11 +19,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           cache: 'pip'
 
       - name: Install dependencies
@@ -28,20 +33,54 @@ jobs:
           pip install -r requirements.txt
           dbt deps --project-dir dbt --profiles-dir dbt
 
-      - name: Run Data Acquisition Pipelines
+      # Step 1: Extract - Download data from procurement portal
+      - name: Extract - Download data
         run: |
           python pipelines/download_bids.py
           python pipelines/download_corporate.py
 
-      - name: Run dbt (Transformations)
+      # Step 2: Load - Update DuckDB with raw data
+      - name: Load - Update DuckDB
+        run: |
+          python pipelines/update_warehouse.py --db ${{ env.DUCKDB_PATH }} --data-dir data/raw
+
+      # Step 3: Transform & Test - Run dbt
+      - name: Transform - dbt run
         run: |
           dbt run --project-dir dbt --profiles-dir dbt
+
+      - name: Test - dbt test
+        run: |
           dbt test --project-dir dbt --profiles-dir dbt
 
-      - name: Upload Database Artifact (Debug/Demo)
+      # Step 4: Export - Gold tables to JSON
+      - name: Export - Gold to JSON
+        run: |
+          python pipelines/export_json.py --db ${{ env.DUCKDB_PATH }} --out web/src/lib
+
+      # Step 5: Deploy - Commit updated JSON files
+      - name: Deploy - Commit artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add web/src/lib/*.json || true
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "chore: daily refresh - $(date +%Y-%m-%d)"
+          git push
+
+      # Save logs as artifacts (for debugging)
+      - name: Upload logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: warehouse-duckdb
-          path: warehouse.duckdb
+          name: run-logs-${{ github.run_number }}
+          path: |
+            dbt/target/
+            logs/
           retention-days: 7

@@ -80,9 +80,9 @@ export async function generateWeeklyReport(): Promise<ReportData | { error: stri
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         return {
-            status_summary: "【デモ版】全体の回収状況は良好ですが、2件の期限超過案件が発生しており注意が必要です。未請求額は前週比で減少傾向にあります。",
+            status_summary: "【デモ版】全体の回収状況は概ね良好ですが、2件の期限超過案件（合計50万円）が発生しており注意が必要です。今週は新規受注が好調で、前週比+15%の伸びを示しています。",
             key_highlights: [
-                "期限超過案件が2件（合計50万円）発生しており、督促が必要です。",
+                "期限超過案件が2件（合計50万円）発生しており、直ちに督促が必要です。",
                 "今週の新規受注は3件、合計120万円で順調に推移しています。",
                 "未請求の案件が1件あり、月末までの対応が推奨されます。"
             ],
@@ -90,14 +90,14 @@ export async function generateWeeklyReport(): Promise<ReportData | { error: stri
                 {
                     order_id: "ORD-2025-001",
                     category: "billing_reminder",
-                    suggested_action: "㈱サンプル商事へ再督促メールを送信してください。",
-                    reasoning_source: "支払期日(12/20)から3日経過"
+                    suggested_action: "メール送信ボタンを押し、㈱サンプル商事へ再督促メールを送信してください。", // More directive
+                    reasoning_source: "支払期日(12/20)から3日経過。社内規定により督促対象です。"
                 },
                 {
                     order_id: "ORD-2025-004",
                     category: "contract_review",
                     suggested_action: "次回契約更新に向けて、単価交渉の準備を推奨します。",
-                    reasoning_source: "利益率低下の兆候あり"
+                    reasoning_source: "粗利率が低下傾向(15%→12%)にあります。"
                 }
             ]
         };

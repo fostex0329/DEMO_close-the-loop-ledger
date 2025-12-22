@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,13 @@ export function RagChat() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [lastSources, setLastSources] = useState<ChatResponse['sources']>([]);
+  const [isComposing, setIsComposing] = useState(false); // Track IME composition
+  const messagesEndRef = useRef<HTMLDivElement>(null); // For auto-scroll
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -57,8 +64,8 @@ export function RagChat() {
       <CardContent className="flex-1 overflow-hidden p-0">
         <div className="grid grid-cols-3 h-full">
             {/* Chat Area */}
-            <div className="col-span-2 flex flex-col h-full border-r">
-                <ScrollArea className="flex-1 p-4">
+            <div className="col-span-2 flex flex-col h-full border-r overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-4">
                     <div className="space-y-4">
                         {messages.length === 0 && (
                             <div className="text-center text-muted-foreground mt-20">
@@ -82,18 +89,25 @@ export function RagChat() {
                                     <Bot className="h-4 w-4" />
                                 </div>
                                 <div className="p-3 rounded-lg bg-muted text-sm animate-pulse">
-                                    Thinking...
+                                    考え中...
                                 </div>
                             </div>
                         )}
+                        <div ref={messagesEndRef} />
                     </div>
-                </ScrollArea>
+                </div>
                 <div className="p-4 border-t flex gap-2">
                     <Input 
-                        placeholder="Type your question..." 
+                        placeholder="質問を入力してください..." 
                         value={input} 
                         onChange={e => setInput(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && handleSend()}
+                        onCompositionStart={() => setIsComposing(true)}
+                        onCompositionEnd={() => setIsComposing(false)}
+                        onKeyDown={e => {
+                            if (e.key === 'Enter' && !isComposing) {
+                                handleSend();
+                            }
+                        }}
                         disabled={loading}
                     />
                     <Button size="icon" onClick={handleSend} disabled={loading}>
@@ -103,19 +117,25 @@ export function RagChat() {
             </div>
 
             {/* Sources Area */}
-            <div className="col-span-1 h-full flex flex-col bg-slate-50 dark:bg-slate-900/50">
-                <div className="p-3 border-b font-semibold text-sm flex items-center gap-2">
+            <div className="col-span-1 h-full flex flex-col bg-slate-50 dark:bg-slate-900/50 overflow-hidden">
+                <div className="p-3 border-b font-semibold text-sm flex items-center gap-2 shrink-0">
                     <FileText className="h-4 w-4" />
                     引用元</div>
-                <ScrollArea className="flex-1 p-3">
+                <div className="flex-1 overflow-y-auto p-3">
                     {lastSources.length > 0 ? (
                         <div className="space-y-3">
                             {lastSources.map((s, i) => (
                                 <div key={i} className="p-3 rounded border bg-background text-xs text-muted-foreground">
-                                    <div className="font-semibold text-primary mb-1 truncate" title={s.filename}>
+                                    <a 
+                                        href={`/documents/${encodeURIComponent(s.filename)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="font-semibold text-primary mb-1 truncate block hover:underline cursor-pointer" 
+                                        title={`${s.filename} を開く`}
+                                    >
                                         {s.filename}
                                         {s.page !== null && <span className="ml-1 text-muted-foreground font-normal">(ページ {s.page})</span>}
-                                    </div>
+                                    </a>
                                     <div className="line-clamp-4 italic">
                                         "{s.excerpt}"
                                     </div>
@@ -127,7 +147,7 @@ export function RagChat() {
                             回答で引用された文書がここに表示されます。
                         </div>
                     )}
-                </ScrollArea>
+                </div>
             </div>
         </div>
       </CardContent>

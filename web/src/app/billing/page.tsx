@@ -1,48 +1,51 @@
 import { Suspense } from 'react';
-import { getInvoices, getPayments } from '@/lib/data';
-import { InvoicesTable } from '@/components/invoices-table';
-import { PaymentsTable } from '@/components/payments-table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getInvoicesPaginated, getPaymentsPaginated, getInvoices } from '@/lib/data';
+import { BillingTabs } from '@/components/billing-tabs';
 import { PaymentModal } from "@/components/payment-modal";
 
-export default async function BillingPage() {
-  const invoices = await getInvoices();
-  const payments = await getPayments();
+interface BillingPageProps {
+  searchParams: Promise<{ invoicePage?: string; paymentPage?: string }>;
+}
+
+export default async function BillingPage({ searchParams }: BillingPageProps) {
+  const params = await searchParams;
+  const invoicePage = parseInt(params?.invoicePage || '1', 10);
+  const paymentPage = parseInt(params?.paymentPage || '1', 10);
+  
+  // Fetch paginated data
+  const [invoicesResult, paymentsResult, allInvoicesForModal] = await Promise.all([
+    getInvoicesPaginated(invoicePage, 50),
+    getPaymentsPaginated(paymentPage, 50),
+    getInvoices().then(invoices => invoices.slice(0, 100)) // Only first 100 for modal dropdown
+  ]);
 
   return (
-    <div className="container mx-auto py-10 space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-        <h1 className="text-3xl font-bold tracking-tight">請求・入金管理</h1>
-          <p className="text-muted-foreground">
-            全プロジェクトの請求書と入金を管理します。
-          </p>
-        </div>
-        <div className="flex gap-2">
-            <PaymentModal invoices={invoices.map(inv => ({ 
+    <div className="min-h-screen bg-background">
+      {/* Page Header */}
+      <header className="border-b bg-white">
+        <div className="px-6 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">請求・入金管理</h1>
+            <p className="text-sm text-muted-foreground">全プロジェクトの請求書と入金を管理</p>
+          </div>
+          <div className="flex gap-2">
+            <PaymentModal invoices={allInvoicesForModal.map(inv => ({ 
               invoice_number: inv.invoice_number,
-              project_name: inv.organization_name, // Using organization name as proxy for project context
+              project_name: inv.organization_name,
               amount: inv.invoice_amount 
             }))} />
+          </div>
         </div>
-      </div>
+      </header>
 
-      <Tabs defaultValue="invoices" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="invoices">請求書 ({invoices.length})</TabsTrigger>
-          <TabsTrigger value="payments">入金 ({payments.length})</TabsTrigger>
-        </TabsList>
-        <TabsContent value="invoices" className="space-y-4">
-          <Suspense fallback={<div>請求書を読み込み中...</div>}>
-            <InvoicesTable invoices={invoices} />
-          </Suspense>
-        </TabsContent>
-        <TabsContent value="payments" className="space-y-4">
-          <Suspense fallback={<div>入金情報を読み込み中...</div>}>
-            <PaymentsTable payments={payments} />
-          </Suspense>
-        </TabsContent>
-      </Tabs>
+      <main className="px-6 py-8 space-y-4">
+        <Suspense fallback={<div>読み込み中...</div>}>
+          <BillingTabs 
+            invoicesData={invoicesResult}
+            paymentsData={paymentsResult}
+          />
+        </Suspense>
+      </main>
     </div>
   );
 }

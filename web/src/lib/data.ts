@@ -3,6 +3,7 @@ import ordersData from './orders.json';
 import exceptionsData from './exceptions.json';
 import invoicesData from './invoices.json';
 import paymentsData from './payments.json';
+import { query } from './db';
 
 export interface OrderRow {
   sequence_no: string;
@@ -67,6 +68,15 @@ export interface KPIs {
   exceptionCount: number;
 }
 
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+// --- Legacy JSON-based functions (fallback) ---
 export async function getOrders(): Promise<OrderRow[]> {
   return ordersData as unknown as OrderRow[];
 }
@@ -83,6 +93,103 @@ export async function getPayments(): Promise<PaymentRow[]> {
   return paymentsData as unknown as PaymentRow[];
 }
 
+// --- Paginated DuckDB-based functions ---
+export async function getInvoicesPaginated(page: number = 1, pageSize: number = 50): Promise<PaginatedResult<InvoiceRow>> {
+  const offset = (page - 1) * pageSize;
+  
+  try {
+    // Get total count
+    const countResult = await query('SELECT COUNT(*) as total FROM main_gold.gold_invoices');
+    const total = countResult[0]?.total || 0;
+    
+    // Get paginated data
+    const data = await query(`
+      SELECT 
+        order_id,
+        invoice_number,
+        organization_name,
+        contractor_name,
+        invoice_amount,
+        invoice_date,
+        payment_due_date,
+        actual_invoice_date,
+        currency
+      FROM main_gold.gold_invoices
+      ORDER BY invoice_date DESC
+      LIMIT ? OFFSET ?
+    `, [pageSize, offset]) as InvoiceRow[];
+    
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize)
+    };
+  } catch (error) {
+    console.error('Error fetching paginated invoices:', error);
+    // Fallback to JSON with manual pagination
+    const allInvoices = invoicesData as unknown as InvoiceRow[];
+    const total = allInvoices.length;
+    const data = allInvoices.slice(offset, offset + pageSize);
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize)
+    };
+  }
+}
+
+export async function getPaymentsPaginated(page: number = 1, pageSize: number = 50): Promise<PaginatedResult<PaymentRow>> {
+  const offset = (page - 1) * pageSize;
+  
+  try {
+    // Get total count
+    const countResult = await query('SELECT COUNT(*) as total FROM main_gold.gold_payments');
+    const total = countResult[0]?.total || 0;
+    
+    // Get paginated data
+    const data = await query(`
+      SELECT 
+        invoice_number,
+        order_id,
+        invoice_amount,
+        payment_due_date,
+        payment_date,
+        payment_amount,
+        payment_status,
+        item_id
+      FROM main_gold.gold_payments
+      ORDER BY payment_due_date DESC
+      LIMIT ? OFFSET ?
+    `, [pageSize, offset]) as PaymentRow[];
+    
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize)
+    };
+  } catch (error) {
+    console.error('Error fetching paginated payments:', error);
+    // Fallback to JSON with manual pagination
+    const allPayments = paymentsData as unknown as PaymentRow[];
+    const total = allPayments.length;
+    const data = allPayments.slice(offset, offset + pageSize);
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize)
+    };
+  }
+}
+
+// --- Other functions ---
 export async function getKPIs(): Promise<KPIs> {
   const orders = await getOrders();
   const exceptions = await getExceptions();
@@ -123,3 +230,4 @@ export async function getPaymentsByOrderId(orderId: string): Promise<PaymentRow[
   const payments = await getPayments();
   return payments.filter(p => String(p.order_id) === orderId);
 }
+
