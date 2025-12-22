@@ -11,78 +11,63 @@ from pathlib import Path
 OUTPUT_DIR = Path("data/raw")
 OUTPUT_FILE = OUTPUT_DIR / "documents_raw.parquet"
 
-# Demo documents metadata (matching files in web/public/documents/)
+# Demo documents metadata (matching columns expected by dbt gold_documents.sql)
+# Expected columns: doc_id, filename, doc_type, content, created_at
 DEMO_DOCUMENTS = [
     {
         "doc_id": "DOC-202512-C-0001",
+        "filename": "DOC-202512-C-0001.pdf",
         "doc_type": "contract",
-        "title": "Transaction Basic Contract (Demo)",
-        "file_path": "documents/DOC-202512-C-0001.pdf",
-        "vendor_name": "Sample Corp",
-        "effective_date": "2025-01-01",
+        "content": "Transaction Basic Contract. Payment Terms: End of month closing, End of next month payment. Late Fee: 14.6% per annum.",
         "created_at": "2025-12-21"
     },
     {
         "doc_id": "DOC-202512-C-0002-JP",
+        "filename": "DOC-202512-C-0002-JP.pdf",
         "doc_type": "contract",
-        "title": "取引基本契約書（デモ用）",
-        "file_path": "documents/DOC-202512-C-0002-JP.pdf",
-        "vendor_name": "株式会社サンプル",
-        "effective_date": "2025-01-01",
+        "content": "取引基本契約書。支払条件：月末締め翌月末払い。遅延損害金：年率14.6%。",
         "created_at": "2025-12-21"
     },
     {
         "doc_id": "DOC-202512-PO-0001",
+        "filename": "DOC-202512-PO-0001.pdf",
         "doc_type": "po",
-        "title": "Purchase Order (Demo)",
-        "file_path": "documents/DOC-202512-PO-0001.pdf",
-        "vendor_name": "Demo Production Inc",
-        "effective_date": "2025-12-01",
+        "content": "Purchase Order PO-202512-0001. Amount: 120,000,000 JPY. Delivery Date: 2026-03-31.",
         "created_at": "2025-12-21"
     },
     {
         "doc_id": "DOC-202512-PO-0002-JP",
+        "filename": "DOC-202512-PO-0002-JP.pdf",
         "doc_type": "po",
-        "title": "発注書（デモ用）",
-        "file_path": "documents/DOC-202512-PO-0002-JP.pdf",
-        "vendor_name": "株式会社デモ制作",
-        "effective_date": "2025-12-01",
+        "content": "発注書 PO-202512-0002。金額：85,000,000円。納期：2026年6月30日。",
         "created_at": "2025-12-21"
     },
     {
         "doc_id": "DOC-202512-INV-0001",
+        "filename": "DOC-202512-INV-0001.pdf",
         "doc_type": "invoice",
-        "title": "Invoice (Demo)",
-        "file_path": "documents/DOC-202512-INV-0001.pdf",
-        "vendor_name": "Demo Production Inc",
-        "effective_date": "2025-12-15",
+        "content": "Invoice INV-202512-0001. Due Date: 2026-01-31. Total: 10,500,000 JPY.",
         "created_at": "2025-12-21"
     },
     {
         "doc_id": "DOC-202512-INV-0002-JP",
+        "filename": "DOC-202512-INV-0002-JP.pdf",
         "doc_type": "invoice",
-        "title": "請求書（デモ用）",
-        "file_path": "documents/DOC-202512-INV-0002-JP.pdf",
-        "vendor_name": "株式会社デモ制作",
-        "effective_date": "2025-12-15",
+        "content": "請求書 INV-202512-0002。支払期日：2026年1月31日。合計：25,850,000円。",
         "created_at": "2025-12-21"
     },
     {
         "doc_id": "DOC-202512-POL-0001",
+        "filename": "DOC-202512-POL-0001.pdf",
         "doc_type": "policy",
-        "title": "Internal Policy: Billing & Collection (Demo)",
-        "file_path": "documents/DOC-202512-POL-0001.pdf",
-        "vendor_name": None,
-        "effective_date": "2025-01-01",
+        "content": "Internal Policy: Billing & Collection. Due Date + 1 Day: First Reminder. Due Date + 7 Days: Second Reminder. Due Date + 14 Days: Escalate to Management.",
         "created_at": "2025-12-21"
     },
     {
         "doc_id": "DOC-202512-POL-0002-JP",
+        "filename": "DOC-202512-POL-0002-JP.pdf",
         "doc_type": "policy",
-        "title": "社内ルール：請求・入金管理（デモ用）",
-        "file_path": "documents/DOC-202512-POL-0002-JP.pdf",
-        "vendor_name": None,
-        "effective_date": "2025-01-01",
+        "content": "社内ルール：請求・入金管理。支払期日＋1営業日：一次督促。支払期日＋7日：二次督促。支払期日＋14日：経営者エスカレーション。",
         "created_at": "2025-12-21"
     }
 ]
@@ -98,6 +83,7 @@ def main():
     df.to_parquet(OUTPUT_FILE, index=False)
     
     print(f"Generated {len(df)} document metadata records")
+    print(f"Columns: {list(df.columns)}")
     print(f"Saved to {OUTPUT_FILE}")
 
 if __name__ == "__main__":
