@@ -1,6 +1,9 @@
 import { getOrders } from "@/lib/data";
 import { LedgerTable } from "@/components/ledger-table";
 
+// Force dynamic rendering to avoid oversized static page (53MB)
+export const dynamic = 'force-dynamic';
+
 export default async function LedgerPage() {
   const orders = await getOrders();
 
